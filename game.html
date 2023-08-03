@@ -1,0 +1,613 @@
+<html>
+<head>
+        <!-- script below is used to do a few things :) -->
+<script>
+
+(async function() {
+console.log('deleting databases')
+const dbs = await window.indexedDB.databases()
+dbs.forEach(db => { window.indexedDB.deleteDatabase(db.name) })
+})();
+
+let timeout = window.setTimeout
+    Object.defineProperty(window, 'setTimeout', {
+        get: function(){
+            return function(){
+                let func = arguments[0]
+                    func(...[].concat(arguments).slice(2))
+            }
+        }
+    });
+
+    const XHROpen=XMLHttpRequest.prototype.open
+    XMLHttpRequest.prototype.open=function(){
+    let real = [].concat(...arguments)
+    console.log(real)
+	real[1] = real[1].replace('//secretcorsbuster.enderspearl184.repl.co', 'https://secretcorsbuster.enderspearl184.repl.co')
+	real[1] = real[1].replace('https://secretcorsbuster.enderspearl184.repl.co:443/rpc', 'https://secretcorsbuster.enderspearl184.repl.co/fetch/candycrush.king.com/rpc')
+    if (arguments[1]?.startsWith("https://candy.enderspearl.repl.co") || arguments[1]?.startsWith("//candycrush.king.com") || arguments[1]?.startsWith("https://candy.enderspearl.repl.co:443") || arguments[1]?.startsWith('https://servicelayer.king.com')) {
+            real[1] = real[1].replace("//candycrush.king.com","https://candy2.enderspearl.repl.co")
+            real[1] = real[1].replace('https://candy.enderspearl.repl.co:443', 'https://candy.enderspearl.repl.co')
+			real[1] = real[1].replace('https://servicelayer.king.com:443/rpc/ClientApi', 'https://candy.enderspearl.repl.co/rpc/ClientApi')
+			real[1] = real[1] + "&level=" + getQueryParam("level")
+    }
+	real[1] = real[1].replace("https:https://","https://")
+    XHROpen.apply(this,real)
+}
+</script>
+    <script src="https://contenido-prod.akamaized.net/canvas/jquery-1.7.1.min.js" crossorigin="anonymous"></script>
+    <script src="https://contenido-prod.akamaized.net/canvas/jsonrpc-jquery-55008228.js" crossorigin="anonymous"></script>
+
+    <link href="https://candycrush-prod.akamaized.net/plataforma/canvas/fonts/supergroteskpro.css" rel="stylesheet" type="text/css">
+    <link href="https://candycrush-prod.akamaized.net/plataforma/canvas/fonts/supergroteskpro.eot#iefix" rel="stylesheet" type="text/css">
+    <link href="https://candycrush-prod.akamaized.net/plataforma/canvas/fonts/supergroteskpro.ttf" rel="stylesheet" type="text/css">
+    <link href="https://candycrush-prod.akamaized.net/plataforma/canvas/fonts/supergroteskpro.woff" rel="stylesheet" type="text/css">
+
+ <div id="templateScript" style="display: none"></div>
+    <div id="socialButtonsScript" style="display: none"></div>
+
+</head>
+
+<body style="margin: 0px">
+<div id="content"></div>
+
+<script>
+    function mergeLists(obj1, obj2){
+        var ret = {};
+        for (var i in obj1) {
+          ret[i] = obj1[i];
+        }
+        for (var j in obj2) {
+          ret[j] = obj2[j];
+        }
+        return ret;
+    };
+
+    function getChromeVersion() {
+        var raw = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
+        return raw ? parseInt(raw[2], 10) : -1;
+    }
+
+    function userHasFlash() {
+        for (var i in navigator.plugins) {
+            if (navigator.plugins[i].name && navigator.plugins[i].name.toString().indexOf('Flash') > -1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function userHasWebGl() {
+        // Check for the WebGL rendering context
+        if ( !! window.WebGLRenderingContext) {
+            var canvas = document.createElement("canvas"),
+                names = ["webgl", "experimental-webgl", "moz-webgl", "webkit-3d"],
+                context = false;
+
+            for (var i in names) {
+                try {
+                    context = canvas.getContext(names[i]);
+                    if (context && typeof context.getParameter === "function") {
+                        // WebGL is enabled.
+                        return true;
+                    }
+                } catch (e) {}
+            }
+
+            // WebGL is supported, but disabled.
+            return false;
+        }
+        // WebGL not supported.
+        return false;
+    };
+
+    function fatalErrorEncountered() {
+        document.getElementById("gameContainer").style.display="none";
+        document.getElementById("incompatibilityContainer").style.display="table";
+        document.getElementById("view-fatal").style.display="block";
+    }
+
+    function outOfMemoryErrorEncountered() {
+        document.getElementById("gameContainer").style.display="none";
+        document.getElementById("incompatibilityContainer").style.display="table";
+        document.getElementById("view-fatal").style.display="block";
+    }
+
+    function showIncompatibilityScreen(canvasParameters) {
+        document.getElementById("gameContainer").style.display="none";
+        document.getElementById("incompatibilityContainer").style.display="table";
+
+        var canvasParametersForPlatform = getCanvasParametersForPlatform(canvasParameters);
+        var compatibilityStatus = canvasParametersForPlatform.browserCompatibilityStatus;
+        var showBrowserCompatibilityErrorInCrashalitics = canvasParametersForPlatform.showBrowserIncompatibleErrorInCrashanalitics;
+
+        if (canvasParametersForPlatform.trackBrowserNotCompatibleInCrashAnalytics && compatibilityStatus != BROWSER_COMPATIBILITY_OK){
+            var message = canvasParameters.requestedPlatform + "-" + compatibilityStatus;
+            trackInCompatibilityError(canvasParametersForPlatform.appVersion , message);
+        }
+    }
+
+    function generateUUID() { // Public Domain/MIT
+        var d = new Date().getTime();
+        if (typeof performance !== 'undefined' && typeof performance.now === 'function'){
+            d += performance.now();
+        }
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = (d + Math.random() * 16) % 16 | 0;
+            d = Math.floor(d / 16);
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+    }
+
+    function trackCanvasManagerCheckpoint(commonParameters, checkpoint) {
+        var funnelId = window.TrackingFunnelId || (window.TrackingFunnelId = generateUUID());
+        var rpc = new JsonRpcEndpoint("https://secretcorsbuster.enderspearl184.repl.co/fetch/king-candycrush.king.com/rpc/ClientApi" + (location.search || ""));
+        rpc.remoteCall("TrackingApi.track", [
+            commonParameters.signInSourceId,
+            0,  // id
+            "", // cookie
+            {
+                type: 7600, // CanvasManagerCheckpoint
+                parameters: [
+                    commonParameters.coreUserId,    // core user id
+                    funnelId,                       // tracking id
+                    checkpoint,                     // string checkpoint
+                    Date.now(),                     // timestamp
+                ]
+            }
+        ]);
+    }
+
+    function trackInCompatibilityError(commonParameters, appVersion, errorMessage){
+        var NO_INSTALL_ID = "";
+        var rpc = new JsonRpcEndpoint("https://secretcorsbuster.enderspearl184.repl.co/fetch/candycrush.king.com/rpc/ClientApi" + (location.search || ""));
+        rpc.remoteCall("AppClientHealthTracking.trackCrashReport2", [
+                            commonParameters.signInSourceId,
+                            commonParameters.coreUserId,
+                            Date.now(),
+                            NO_INSTALL_ID,
+                            navigator.userAgent,
+                            appVersion,
+                            navigator.oscpu ? navigator.oscpu : navigator.platform,
+                            errorMessage,
+                            "UnsupportedBrowser"]);
+    }
+
+    function compileIndexTemplate(canvasParameters, callback) {
+        $('#templateScript').load('https://secretcorsbuster.enderspearl184.repl.co/fetch/candycrush.king.com/plataforma/canvas/index_template.html', function () {
+            var source = $("#indexTemplate").html();
+            var template = Handlebars.compile(source);
+            var indexTemplateParameters = mergeLists(getCanvasParametersForPlatform(canvasParameters), canvasParameters.commonParameters);
+            $('#content').replaceWith(template(indexTemplateParameters));
+            callback();
+        })
+    }
+
+    function loadCss(path, onDone) {
+        var style = document.createElement('style');
+        style.setAttribute("type", "text/css");
+        $('head').append(style);
+        $(style).load(path, onDone);
+    }
+
+    function isKingComRequest() {
+        var queryParameterName = 'socialContainer';
+        if (queryParameterName = (new RegExp('[?&]' + encodeURIComponent(queryParameterName) + '=([^&]*)')).exec(location.search)) {
+            var kingcomParam = decodeURIComponent(queryParameterName[1]);
+            return kingcomParam != null && kingcomParam == 'kingdom';
+        }
+        return false;
+    }
+
+    function loadScript(url, success) {
+        var d = document.createElement("script");
+        d.setAttribute("type", "text/javascript");
+        d.setAttribute("crossorigin", "anonymous");
+        d.setAttribute("src", url);
+        d.onload = d.onreadystatechange = success;
+        document.head.appendChild(d);
+    }
+
+    function getCanvasParametersForPlatform(canvasParameters) {
+        if (isRequestedPlatformFlash(canvasParameters)) {
+            return canvasParameters.flashParameters;
+        }
+        if (isRequestedPlatformFictionFactory(canvasParameters)) {
+            return canvasParameters.fictionFactoryParameters;
+        }
+        if (isRequestedPlatformUnity(canvasParameters)) {
+            return canvasParameters.unity3dParameters;
+        }
+        if (isRequestedPlatformNone(canvasParameters)) {
+            return canvasParameters.platformNoneParameters;
+        }
+        if (isRequestedPlatformDefold(canvasParameters)) {
+            return canvasParameters.defoldParameters;
+        }
+    }
+
+    PLATFORM_FLASH = 'FLASH'
+    PLATFORM_FICTION_FACTORY = 'FICTION_FACTORY'
+    PLATFORM_UNITY = 'UNITY3D';
+    PLATFORM_NONE = 'NONE';
+    PLATFORM_DEFOLD = 'DEFOLD'
+
+    BROWSER_COMPATIBILITY_OK = 'OK';
+    function isRequestedPlatformFlash(canvasParameters) {
+        return canvasParameters.requestedPlatform == PLATFORM_FLASH;
+    }
+    function isRequestedPlatformFictionFactory(canvasParameters) {
+        return canvasParameters.requestedPlatform == PLATFORM_FICTION_FACTORY;
+    }
+    function isRequestedPlatformUnity(canvasParameters) {
+        return canvasParameters.requestedPlatform == PLATFORM_UNITY;
+    }
+    function isRequestedPlatformDefold(canvasParameters) {
+        return canvasParameters.requestedPlatform == PLATFORM_DEFOLD;
+    }
+    function isRequestedPlatformNone(canvasParameters) {
+        return canvasParameters.requestedPlatform == PLATFORM_NONE;
+    }
+
+
+    function registerHandlebarHelpers() {
+        Handlebars.registerHelper('ifEquals', function(arg1, arg2, options) {
+            return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
+        });
+        Handlebars.registerHelper('sum', function(arg1, arg2, options) {
+            return arg1 + arg2;
+        });
+        Handlebars.registerHelper('isAorB', function(arg1, arg2 , arg3, options) {
+            return (arg1 == arg2 || arg1 == arg3) ? options.fn(this) : options.inverse(this);
+        });
+
+        Handlebars.registerHelper('format', function (context) {
+            var html = context;
+            return new Handlebars.SafeString(html);
+        });
+        Handlebars.registerHelper('max', function(arg1, arg2, options) {
+            return arg1 > arg2?arg1:arg2;
+        });
+        Handlebars.registerHelper('min', function(arg1, arg2, options) {
+            return arg1 < arg2?arg1:arg2;
+        });
+        Handlebars.registerHelper('divideCapped', function(arg1, arg2,cap, options) {
+            if (arg1==0||arg2==0){
+                return 0;
+            }
+            var ret = arg1/arg2;
+            return ret>cap?cap:ret;
+        });
+        Handlebars.registerHelper('ifLessGetString', function(arg1, arg2, positiveStr, negativeStr, options) {
+            return arg1<arg2?positiveStr:negativeStr;
+        });
+    }
+
+    function registerCanvasConfig(canvasParameters) {
+        if (canvasParameters.commonParameters.isGetCanvasConfigEnabled) {
+            window.getCanvasConfig = function () {
+                return JSON.stringify(
+                    {
+                        "host": canvasParameters.commonParameters.hostName,
+                        "appId": canvasParameters.commonParameters.facebookAppId,
+                        "port": canvasParameters.commonParameters.port,
+                        "live": canvasParameters.commonParameters.isLive
+                    }
+                )
+            }
+        }
+    }
+
+    function getQueryParam(param) {
+        var params = window.location.search.substring(1).split("&");
+        for (var i=0; i < params.length; i++) {
+            var pair = params[i].split("=");
+            if (pair[0] === param) {
+                return pair[1];
+            }
+        }
+        return null;
+    }
+</script>
+
+
+<script>
+    trackCanvasManagerCheckpoint({ signInSourceId: 0, coreUserId: 0 }, "LoadedIndex");
+
+    $(document).ready( function () {
+        trackCanvasManagerCheckpoint({ signInSourceId: 0, coreUserId: 0 }, "DocumentReady");
+        $.ajaxSetup({'cache': true});
+        Window.isKingCom = isKingComRequest();
+        var _cv = getQueryParam("_cv") || "";
+        var rpc = new JsonRpcEndpoint("https://secretcorsbuster.enderspearl184.repl.co/fetch/king-candycrush.king.com/rpc/ClientApi" + (location.search || ""));
+        canvasParameters = {
+    "requestedPlatform": "FICTION_FACTORY",
+    "commonParameters": {
+        "isSecureRequest": true,
+        "sessionKey": localStorage.getItem("sessionKey") || "blahblah&uuid=" + generateUUID(),
+		"coreUserId": parseInt(localStorage.getItem('coreUserId')) || 4015624843,
+        "signInSourceId": 20,
+        "signInNetworkName": "Kingdom",
+        "hostName": "candycrush.king.com",
+        "hostUrl": "https://candycrush-prod.akamaized.net",
+        "cdnUrl": "https://candycrush-prod.akamaized.net",
+        "apiUrl": "https://candy2.enderspearl.repl.co/rpc/ClientApi",
+        "port": "8443",
+        "locale": "en_US",
+        "kingAppId": "17",
+        "isGetCanvasConfigEnabled": false,
+        "isLive": true,
+        "isFacebook": true,
+        "isKingdom": false,
+        "handlebarsJsScriptFullUrl": "https://candycrush-prod.akamaized.net/plataforma/js/handlebars-4.0.10.min.js",
+        "kingJsScriptFullUrl": "https://candycrush-prod.akamaized.net/plataforma/pack/king-kingdom.js",
+        "facebookAppId": "210831918949520",
+        "facebookCanvasPageFullUrl": "https://apps.facebook.com/candycrush/",
+        "kingdomApplicationId": "17",
+        "kingdomCanvasPageFullUrl": "https://king.com/#!/play/candycrush",
+        "adsInitData": "{\"dataStructureVersion\":2,\"kingAppShortName\":\"candycrush\",\"countryCode\":\"CA\",\"language\":\"en\",\"kingBlingHostname\":\"bling.king.com\",\"protocol\":\"https://secretcorsbuster.enderspearl184.repl.co/fetch/\",\"sex\":\"u\",\"coreUserId\":14456905465,\"kingAppId\":17,\"signInSourceId\":0,\"age\":-1,\"ageRange\":{\"from\":0,\"to\":0},\"installedKingAppsIdLastVisitMap\":{\"17\":1690946700,\"33\":1690487732},\"videoAdPlacements\":{\"dataStructureVersion\":0,\"kingAppName\":\"CANDYCRUSH\",\"placements\":{\"1\":{\"openx\":\"255735\"},\"2\":{\"openx\":\"264379\"}}},\"userMetrics\":{\"topLevel\":0,\"ab\":{\"exc\":false}}}",
+        "baseCssFullUrl": "https://candycrush-prod.akamaized.net/plataforma/canvas/base.css",
+        "gameViewDecoration": "box-shadow: rgba(0, 0, 0, 0.9) 0px 0px 15px 8px;",
+        "fanPageFullUrl": "https://www.facebook.com/pages/Candy-Crush-Saga/244944385603396",
+        "faqFullUrl": "http://to.king.com/NHlU",
+        "forumFullUrl": "https://care.king.com/en/candy-crush-saga",
+        "socialButtonsParameters": {
+            "socialButtonsScriptUrl": "https://candycrush-prod.akamaized.net/plataforma/canvas/social_buttons.js",
+            "socialButtonsTemplateUrl": "https://candycrush-prod.akamaized.net/plataforma/canvas/social_buttons_template.html",
+            "instagramChannelFullUrl": "http://instagram.com/candycrushsaga",
+            "youtubeChannelFullUrl": "http://www.youtube.com/CandyCrushOfficial",
+            "communityChannelFullUrl": "https://community.king.com/en/candy-crush-saga?utm_source=Facebook&utm_campaign=CCS%20Facebook",
+            "twitterHashTag": "CandyCrushSaga",
+            "tweetDefaultText": "%22Play+Candy+Crush+with+me%21+--%3E+http%3A%2F%2Fto.king.com%2FzY9l%22",
+            "youtubeLogoUrl": "https://candycrush-prod.akamaized.net/plataforma/canvas/images/youtube.png",
+            "communityLogoUrl": "https://candycrush-prod.akamaized.net/plataforma/canvas/images/community.png",
+            "hasSocialFacebook": true,
+            "instagramLogoUrl": "https://candycrush-prod.akamaized.net/plataforma/canvas/images/instagram.png"
+        },
+        "browserIncompatibleViewParams": {
+            "textVisitDesktop": "Sorry, we do not support your phone.<br/>Please use a desktop browser!",
+            "textIncompatibleBrowser": "Sorry, we do not support your browser.<br/>Please use one of the following browsers to play:",
+            "textNoWebGl": "We cannot run WebGL, please make sure that you have the latest drivers for your graphic card.<br />Please visit: <a href=\"http://get.webgl.org/\">WebGL</a> to get more information on how to enable it.",
+            "textFatal": "You have experienced an error that we are working hard to fix.<br />Please try again in a moment.",
+            "firefoxIconUrl": "https://candycrush-prod.akamaized.net/plataforma/canvas/images/firefox.png",
+            "chromeIconUrl": "https://candycrush-prod.akamaized.net/plataforma/canvas/images/chrome.png",
+            "operaIconUrl": "https://candycrush-prod.akamaized.net/plataforma/canvas/images/opera.png",
+            "edgeIconUrl": "https://candycrush-prod.akamaized.net/plataforma/canvas/images/edge.png",
+            "safariIconUrl": "https://candycrush-prod.akamaized.net/plataforma/canvas/images/safari.png",
+            "storeAmazonIconUrl": "https://candycrush-prod.akamaized.net/plataforma/canvas/images/store-amazon.png",
+            "storeMicrosoftIconUrl": "https://candycrush-prod.akamaized.net/plataforma/canvas/images/store-microsoft.png",
+            "storeGoogleIconUrl": "https://candycrush-prod.akamaized.net/plataforma/canvas/images/store-google.png",
+            "storeAppleIconUrl": "https://candycrush-prod.akamaized.net/plataforma/canvas/images/store-apple.png",
+            "playStoreGameUrl": "https://play.google.com/store/apps/details?id=com.king.candycrushsaga",
+            "iosStoreGameUrl": "https://itunes.apple.com/us/app/candy-crush-saga/id553834731?ls=1&mt=8",
+            "amazonStoreGameUrl": "https://www.amazon.com/gp/product/B00FAPF5U0",
+            "microsoftStoreGameUrl": "https://www.microsoft.com/store/p/candy-crush-saga/9nblggh18846"
+        },
+        "copyrightYear": 2023
+    },
+    "fictionFactoryParameters": {
+        "gameTemplateLoaderUrl": "https://candycrush-prod.akamaized.net/plataforma/canvas/fictionFactory.js",
+        "gameTemplateUrl": "https://candycrush-prod.akamaized.net/plataforma/canvas/fictionFactory_template.html",
+        "juegoOrSagaScriptUrl": "https://candycrush-prod.akamaized.net/saga/js/Saga.js",
+        "fictionFactoryInitJsUrl": "https://candycrush-prod.akamaized.net/client/ff.min.js",
+        "slayerUrl": "https://candy.enderspearl.repl.co",
+        "gameWidth": 896,
+        "gameHeight": 640,
+        "pageBackgroundImageUrl": "https://candycrush-prod.akamaized.net/images/backgrounds/bg-ccs-gradient.jpg",
+        "appVersion": "1.258.0.1",
+        "environment": "LIVE",
+        "logoImgUrl": "https://candycrush-prod.akamaized.net/plataforma/canvas/images/logo.png",
+        "textFrameDownloadingGame": [
+            "Downloading..."
+        ],
+        "gameContainerBackgroundImageUrl": "https://candycrush-prod.akamaized.net/plataforma/canvas/images/frameDownloadingGameBackground.png",
+        "fictionFactoryGameJsLoaderUrl": "https://candycrush-prod.akamaized.net/client/candycrushsaga_asm.js",
+        "fictionFactoryAsmUrl": "https://candycrush-prod.akamaized.net/client/candycrushsaga_asm.asm.js",
+        "fictionFactoryJsMemUrl": "https://candycrush-prod.akamaized.net/client/candycrushsaga.js.mem",
+        "fictionFactoryAssetsDataUrl": "https://candycrush-prod.akamaized.net/client/assets.data",
+        "fictionFactoryAssetsDataUrls": [
+            "https://candycrush-prod.akamaized.net/client/assets_8.data",
+            "https://candycrush-prod.akamaized.net/client/assets_1.data",
+            "https://candycrush-prod.akamaized.net/client/assets_2.data",
+            "https://candycrush-prod.akamaized.net/client/assets_6.data",
+            "https://candycrush-prod.akamaized.net/client/assets_3.data",
+            "https://candycrush-prod.akamaized.net/client/assets_10.data",
+            "https://candycrush-prod.akamaized.net/client/assets_4.data",
+            "https://candycrush-prod.akamaized.net/client/assets_9.data",
+            "https://candycrush-prod.akamaized.net/client/assets_7.data",
+            "https://candycrush-prod.akamaized.net/client/assets_5.data"
+        ],
+        "fictionFactoryAssetsMetaDataUrl": "https://candycrush-prod.akamaized.net/client/assets.metadata",
+        "fictionFactoryBuildId": "",
+        "fictionGameClientSettingsFile": "https://candycrush-prod.akamaized.net/client/game_client_settings.json",
+        "fictionGameClientSettingsMd5File": "https://candycrush-prod.akamaized.net/client/game_client_settings.json.md5",
+        "fictionFactoryWasmGameJsLoaderUrl": "https://candycrush-prod.akamaized.net/client/candycrushsaga.js",
+        "fictionFactoryWasmUrl": "https://candycrush-prod.akamaized.net/client/candycrushsaga.wasm",
+        "fictionFactoryWasmSettingsUrl": "https://candycrush-prod.akamaized.net/client/game_client_settings.json",
+        "downloadingGameLogoUrl": "https://candycrush-prod.akamaized.net/plataforma/canvas/images/logo.png",
+        "legacyParameters": {},
+        "gzipPostThresholdBytes": 1024,
+        "preallocateStorage": 28311552,
+        "preallocateHeapSize": 134217728,
+        "preallocateHeapSizeMin": 134217728,
+        "browserCompatibilityStatus": "OK",
+        "trackBrowserNotCompatibleInCrashAnalytics": false,
+        "memoryFragmentationAsEvent": false,
+        "gameSpecificBrowserIncompatibleViewParams": {
+            "isChromeInAlternativeBrowserList": true,
+            "isFirefoxInAlternativeBrowserList": true,
+            "isOperaInAlternativeBrowserList": true,
+            "isEdgeInAlternativeBrowserList": true,
+            "isSafariInAlternativeBrowserList": true,
+            "sadCharacterImageUrl": "https://candycrush-prod.akamaized.net/images/client_assets/yeti.png"
+        }
+    },
+    "unity3dParameters": {
+        "gameWidth": 0,
+        "gameHeight": 0,
+        "gzipPostThresholdBytes": 0,
+        "trackBrowserNotCompatibleInCrashAnalytics": false
+    },
+    "platformNoneParameters": {
+        "gameWidth": 0,
+        "gameHeight": 0
+    }
+}
+	console.log('lol async function')
+	fetch("https://candy2.enderspearl.repl.co",{method:"POST",body:JSON.stringify([{ "jsonrpc":"2.0", "method": "AppApi.connectUsingKingdom2", "params": [4015624843, "@GENERATE@", "tQwSUiF6Aj", "us", "en_us", 20, "Emscripten-Kingdom", "", "UTC"], "id": 1}])}).then(res=>{
+	res.json().then(generatedUser=>{
+	canvasParameters.commonParameters.sessionKey=generatedUser[0].result.sessionKey
+    console.log(canvasParameters)
+                    registerCanvasConfig(canvasParameters);
+                    trackCanvasManagerCheckpoint(canvasParameters.commonParameters, "LoadedCanvasParameters");
+                    loadScript(canvasParameters.commonParameters.handlebarsJsScriptFullUrl, function () {
+                        trackCanvasManagerCheckpoint(canvasParameters.commonParameters, "LoadedHandleBars");
+                        console.log(canvasParameters);
+                        window.canvasParameters = canvasParameters;
+                        registerHandlebarHelpers();
+                        compileIndexTemplate(canvasParameters , function(){
+                            loadScript(canvasParameters.commonParameters.kingJsScriptFullUrl, function () {
+                                trackCanvasManagerCheckpoint(canvasParameters.commonParameters, "LoadedKingJS");
+                                kingInit(canvasParameters.commonParameters,
+                                        canvasParameters.requestedPlatform,
+                                        getCanvasParametersForPlatform(canvasParameters).gameWidth,
+                                        getCanvasParametersForPlatform(canvasParameters).gameHeight);
+
+                                if (!Window.isKingCom && !isRequestedPlatformNone(canvasParameters)) {
+                                    initializeKingBling(canvasParameters.commonParameters,
+                                            getCanvasParametersForPlatform(canvasParameters).gameWidth,
+                                            getCanvasParametersForPlatform(canvasParameters).gameHeight);
+
+                                    showSocialButtons(canvasParameters);
+                                }
+                                var compatibilityStatus = getCanvasParametersForPlatform(canvasParameters).browserCompatibilityStatus;
+                                if (compatibilityStatus == BROWSER_COMPATIBILITY_OK){
+                                    showGame(canvasParameters)
+                                }else{
+                                    showIncompatibilityScreen(canvasParameters);
+                                }
+                            });
+                        });
+                    });
+					})
+					})
+    });
+
+
+    function showGame(canvasParameters) {
+        if (isRequestedPlatformFlash(canvasParameters)) {
+            trackCanvasManagerCheckpoint(canvasParameters.commonParameters, "ShowFlash");
+            loadScript(canvasParameters.flashParameters.flashGameJsLoaderUrl, function () {
+                trackCanvasManagerCheckpoint(canvasParameters.commonParameters, "LoadedLoader");
+                loadFlash(canvasParameters.flashParameters.parameterMap);
+            });
+            return;
+        }
+
+        if (isRequestedPlatformFictionFactory(canvasParameters)) {
+            trackCanvasManagerCheckpoint(canvasParameters.commonParameters, "ShowFiction");
+            loadScript(canvasParameters.fictionFactoryParameters.gameTemplateLoaderUrl, function () {
+                trackCanvasManagerCheckpoint(canvasParameters.commonParameters, "LoadedLoader");
+                loadFictionFactory(canvasParameters.commonParameters, canvasParameters.fictionFactoryParameters);
+            });
+            return;
+        }
+
+        if (isRequestedPlatformUnity(canvasParameters)) {
+            trackCanvasManagerCheckpoint(canvasParameters.commonParameters, "ShowUnity");
+            loadScript(canvasParameters.unity3dParameters.gameTemplateLoaderUrl, function () {
+                trackCanvasManagerCheckpoint(canvasParameters.commonParameters, "LoadedLoader");
+                loadUnity3d(canvasParameters.commonParameters, canvasParameters.unity3dParameters);
+            });
+            return;
+        }
+        if (isRequestedPlatformDefold(canvasParameters)) {
+            trackCanvasManagerCheckpoint(canvasParameters.commonParameters, "ShowDefold");
+            loadScript(canvasParameters.defoldParameters.gameTemplateLoaderUrl, function () {
+                trackCanvasManagerCheckpoint(canvasParameters.commonParameters, "LoadedLoader");
+                loadDefold(canvasParameters.commonParameters, canvasParameters.defoldParameters);
+            });
+            return;
+        }
+
+        console.log("Platform none");
+    }
+
+    function showSocialButtons(canvasParameters) {
+        if (canvasParameters.commonParameters.socialButtonsParameters == null){
+            return;
+        }
+
+        var combinedParametersForSocialButtons = mergeLists(getCanvasParametersForPlatform(canvasParameters), canvasParameters.commonParameters);
+        loadScript(combinedParametersForSocialButtons.socialButtonsParameters.socialButtonsScriptUrl,function () {
+            showSocialButtons(combinedParametersForSocialButtons);
+        });
+    }
+
+    //################################################################################################
+    // Kingbling
+    //################################################################################################
+    function kingInit(commonParameters, requestedPlatform, width, height) {
+        king.debugMode = false;
+        king.init({
+            facebook: {
+                appId: commonParameters.facebookAppId + '',
+                appUrl: commonParameters.facebookCanvasPageFullUrl,
+                useFloating: false,
+                useUserCurrencySystem: true,
+                fallbackScriptUrl: "https://d2wh90un5k05l1.cloudfront.net/sdk.js",
+                useFallbackScriptUrl: true,
+            },
+            kingdom: {
+                appId: commonParameters.kingdomApplicationId + '',
+                appUrl: commonParameters.kingdomCanvasPageFullUrl + '',
+                useFloating: false,
+                sessionKey: commonParameters.sessionKey,
+                canvasSize: {width: width, height: height}
+            },
+            gameId: 'game', //name of the <div name="game"> where the game object is embedded.
+            userId: commonParameters.coreUserId + "",
+            sessionKey: commonParameters.sessionKey,
+            cdn: commonParameters.cdnUrl,
+            storage: 20 * 1024 * 1024,
+            locale: commonParameters.locale
+        });
+
+        king.util.callAfterInit(function (event) {
+            (requestedPlatform == PLATFORM_FLASH) && FB.Canvas.Prefetcher.setCollectionMode(FB.Canvas.Prefetcher.COLLECT_MANUAL);
+        });
+    }
+
+    function initializeKingBling(commonParameters, gameWidth, gameHeight) {
+        $.ajax({
+            url: commonParameters.adsJsScriptUrl,
+            dataType: "script",
+            cache: true,
+
+            success: function (data, textStatus, jqXHR) {
+                myKingBling = new KingBling();
+                myKingBling.init(JSON.parse(commonParameters.adsInitData));
+                myKingBling.open(KingBlingModuleTypeMap.CROSSPROMO_BANNER_TOP, "topBanner", {width: gameWidth});
+                myKingBling.open(KingBlingModuleTypeMap.CROSSPROMO_BANNER_BOTTOM, "bottomBanner", {
+                    rotation: true,
+                    bottomBannerCallback: function (options) {
+                        if (options && options.height && window.FB && FB.Canvas) {
+                            FB.Canvas.setSize({height: gameHeight + options.height + 200});
+                        }
+                    },
+                    width: gameWidth
+                });
+            }
+        });
+        var kingLogoForBannerWidth = 124;
+        var carouselWidth = gameWidth - kingLogoForBannerWidth;
+        var navButtonWith = 32;
+        var contentBannerWith = carouselWidth - navButtonWith;
+        var customStyle = "#kbCrosspromoTopBannerCnt {width: " + gameWidth + "px !important;left: 0px !important;} #kbCrosspromoTopBannerCnt .carouselCnt {left: 100px !important;width: " + carouselWidth + "px !important;} .kbCrosspromoTopBannerCntCenter {width: " + contentBannerWith + "px !important;} #topBanner {margin-bottom : 10px}";
+        $('<style>' + customStyle + '</style>').appendTo(document.head);
+    }
+
+</script>
+
+</body>
+</html>

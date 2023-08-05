@@ -442,6 +442,34 @@ img[src="elements/cake_top_right.png"], img[src="elements/cake_bottom_right.png"
     max-height:64px;
 }
 
+#level .rainbow_cannon_top {
+    position: absolute;
+    bottom: 170%;
+    z-index: 2;
+    pointer-events: none;
+}
+
+#level .rainbow_cannon_bottom {
+    position: absolute;
+    top: 85%;
+    z-index: 2;
+    pointer-events: none;
+}
+
+#level .rainbow_cannon_left {
+    position: absolute;
+    transform: translateX(-30px);
+    z-index: 2;
+    pointer-events: none;
+}
+
+#level .rainbow_cannon_right {
+    position: absolute;
+    left: 61%;
+    z-index: 2;
+    pointer-events: none;
+}
+
 #main {
     display: flex;
     flex-direction: row;

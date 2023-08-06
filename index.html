@@ -183,6 +183,22 @@
                     <label for="moves" class='DroidSans' style="margin: 10px; display: block; color: white; text-align: center;">Disable Starting Boosters:</label>
                     <input style="text-align: center;" type="checkbox" name="disablebooster" id="disablebooster">
                 </div>
+
+                <div class="sidetitle">
+                    <p class='MergePro' style="font-weight: bold; text-align: center; color: blueviolet;">Dreamworld:</p>
+                </div>
+                <div class="sideoptions">
+                    <label for="isOwlModeEnabled" class='DroidSans' style="margin: 10px; display: block; color: white; text-align: center;">Dreamworld Level?</label>
+                    <input style="text-align: center;" type="checkbox" name="isOwlModeEnabled" id="isOwlModeEnabled" onchange="toggleDreamworld(this)">
+                </div>
+                <div class="sideoptions" id="dreamworldoptions" style="display: none;">
+                    <label for="initialMovesUntilMoonStruck" class='DroidSans' style="margin: 10px; display: block; color: white; text-align: center;">Moves Until Moonstruck</label>
+                    <input style="width: 50px; text-align: center;" type="number" name="initialMovesUntilMoonStruck" id="initialMovesUntilMoonStruck" placeholder="5">
+                    <label for="initialMovesDuringMoonStruck"  class='DroidSans' style="margin: 10px; display: block; color: white; text-align: center;">Moonstruck Length</label>
+                    <input style="width: 50px; text-align: center;" type="number" name="initialMovesDuringMoonStruck" id="initialMovesDuringMoonStruck" placeholder="3">
+                    <label for="maxAllowedScaleDiff"  class='DroidSans' style="margin: 10px; display: block; color: white; text-align: center;">Max Scale Difference</label>
+                    <input style="width: 50px; text-align: center;" type="number" name="maxAllowedScaleDiff" id="maxAllowedScaleDiff" placeholder="10">
+                </div>
                 <div id="requirements-options-section" style="display: none;">
                     <div class="sidetitle">
                         <p class='MergePro' style="font-weight: bold; color: white; text-align: center;">Requirements:</p>

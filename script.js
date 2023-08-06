@@ -112,6 +112,10 @@ function getLayerFromId(id){
     return layer
 }
 
+function toggleDreamworld(object) {
+    document.getElementById("dreamworldoptions").style.display = object.checked ? "block" : "none"
+}
+
 function switchedRequirement(object){
     document.getElementById("requirementwarning").style.display = "none"
     let requirement = object.value
@@ -972,6 +976,14 @@ function importLevel(levelData){
     selectedColor = origColor
     elementLayer = origLayer
     selectedElement = origElement
+
+    //set dreamworld settings
+    //set it to the opposite then click it so it applies the hide or show part of the menu
+    document.getElementById('isOwlModeEnabled').checked = levelData.isOwlModeEnabled
+    document.getElementById("dreamworldoptions").style.display = levelData.isOwlModeEnabled ? "block" : "none"
+    document.getElementById("initialMovesUntilMoonStruck").value = levelData.initialMovesUntilMoonStruck || ''
+    document.getElementById("initialMovesDuringMoonStruck").value = levelData.initialMovesDuringMoonStruck || ''
+    document.getElementById('maxAllowedScaleDiff').value = levelData.maxAllowedScaleDiff || ''
 }
 
 function displayImportLevelUI(){
@@ -1208,6 +1220,18 @@ function exportLevel(){
         })
     })
 
+    //dreamworld
+    if (document.getElementById("isOwlModeEnabled").checked) {
+        level.isOwlModeEnabled = true
+        level.initialMovesUntilMoonStruck = parseInt(document.getElementById("initialMovesUntilMoonStruck").value) || 5
+        level.initialMovesDuringMoonStruck = parseInt(document.getElementById("initialMovesDuringMoonStruck").value) || 3
+        level.maxAllowedScaleDiff = parseInt(document.getElementById('maxAllowedScaleDiff').value) || 10
+        level.leftWeightToTriggerMoonStruck = 0
+        level.rightWeightToTriggerMoonStruck = 0
+        level.totalWeightToTriggerMoonStruck = 0
+        level.useSplitWeightConditionToTriggerMoonStruck = false
+        level.useTotalWeightConditionToTriggerMoonstruck = false
+    }
     return level
 }
 

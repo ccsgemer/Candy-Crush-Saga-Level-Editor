@@ -1,13 +1,16 @@
 <html>
 <head>
+<script src="https://unpkg.com/fflate@0.8.0"></script>
         <!-- script below is used to do a few things :) -->
 <script>
 
 (async function() {
+
 console.log('deleting databases')
 const dbs = await window.indexedDB.databases()
 dbs.forEach(db => { window.indexedDB.deleteDatabase(db.name) })
 })();
+
 
 let timeout = window.setTimeout
     Object.defineProperty(window, 'setTimeout', {
@@ -18,6 +21,47 @@ let timeout = window.setTimeout
             }
         }
     });
+	
+	let enabledHacks={}
+function hackRequest(json, session) {
+    let hackReqParams = []
+    for (let req of json) {
+        //this can be used to change other requests but it doesnt matter here
+      	//so i deleted the other options
+        if (enabledHacks['countdowncrystal']) {
+            if (req.method == "AppAbTestApi.getAppUserAbCases") {
+                hackReqParams.push({
+                    id: req.id,
+                    type: "abTesting",
+                    cases: req.params[0]
+                })
+            }
+        }
+    }
+
+    return hackReqParams
+}
+
+function hackResponse(json, hackReqParams, session) {
+console.log('hacking response')
+    for (let hack of hackReqParams) {
+        if (hack.type == "abTesting") {
+			console.log('crystal countdowns!')
+            //console.log(hack.cases)
+            let resCases = json.find((req) => req.id == hack.id)?.result?.cases
+            if (Array.isArray(resCases)) {
+
+                let pepperCandyV2 = resCases[hack.cases.indexOf('ccsm_content_pepper_candy_v2')]
+                if (pepperCandyV2) {
+                    console.log(pepperCandyV2)
+                    pepperCandyV2.caseNum = 1
+                    pepperCandyV2.version += 2
+                }
+            }
+        }
+    }
+    return json
+}
 
     const XHROpen=XMLHttpRequest.prototype.open
     XMLHttpRequest.prototype.open=function(){
@@ -25,15 +69,91 @@ let timeout = window.setTimeout
     console.log(real)
 	real[1] = real[1].replace('//secretcorsbuster.enderspearl184.repl.co', 'https://secretcorsbuster.enderspearl184.repl.co')
 	real[1] = real[1].replace('https://secretcorsbuster.enderspearl184.repl.co:443/rpc', 'https://secretcorsbuster.enderspearl184.repl.co/fetch/candycrush.king.com/rpc')
-    if (arguments[1]?.startsWith("https://candy.enderspearl.repl.co") || arguments[1]?.startsWith("//candycrush.king.com") || arguments[1]?.startsWith("https://candy.enderspearl.repl.co:443") || arguments[1]?.startsWith('https://servicelayer.king.com')) {
-            real[1] = real[1].replace("//candycrush.king.com","https://candy2.enderspearl.repl.co")
-            real[1] = real[1].replace('https://candy.enderspearl.repl.co:443', 'https://candy.enderspearl.repl.co')
-			real[1] = real[1].replace('https://servicelayer.king.com:443/rpc/ClientApi', 'https://candy.enderspearl.repl.co/rpc/ClientApi')
-			real[1] = real[1] + "&level=" + getQueryParam("level")
+    if (arguments[1]?.startsWith("https://candy.enderspearl.repl.co") || arguments[1]?.startsWith("https://candy2.enderspearl.repl.co") || arguments[1]?.startsWith("//candycrush.king.com") || arguments[1]?.startsWith("https://candy.enderspearl.repl.co:443") || arguments[1]?.startsWith('https://servicelayer.king.com')) {
+		real[1] = real[1].replace("//candycrush.king.com","https://candy2.enderspearl.repl.co")
+		real[1] = real[1].replace('https://candy.enderspearl.repl.co:443', 'https://candy.enderspearl.repl.co')
+		real[1] = real[1].replace('https://servicelayer.king.com:443/rpc/ClientApi', 'https://candy.enderspearl.repl.co/rpc/ClientApi')
+		real[1] = real[1] + "&level=" + getQueryParam("level")
+		
+		if (!real[1].startsWith('https://candy.enderspearl.repl.co/zip')) {
+			//this part of the thing sucks you can remove it and it will only break the countdown crystal checkbox
+			let XHRSend=this.send
+			let session=arguments[1].split('?_session=')[1]
+			this.send=function(){
+			console.log(arguments)
+				let args=[].concat(...arguments)
+				let isGZipped = false
+				let json
+				console.log(args)
+				try {
+					if (typeof args[0] === 'string') {
+						json = JSON.parse(args[0])
+					} else {
+						//console.log(fflate.strFromU8(fflate.decompressSync(new Uint8Array(args[0]))))
+						json = JSON.parse(fflate.strFromU8(fflate.decompressSync(new Uint8Array(args[0]))))
+						isGZipped=true
+						console.log('is gzipped')
+					}
+					let hackReqParams = hackRequest(json,session)
+					this.realOnLoad = this.onload
+					this.onload = function() {
+						try {
+						
+							resjson = fflate.strFromU8(new Uint8Array(this.response))
+							//console.log(resjson)
+							resjson = JSON.parse(resjson)
+							hackResponse(resjson,hackReqParams,session)
+							Object.defineProperty(this,'response',{value:new TextEncoder().encode(JSON.stringify(resjson))})
+						} catch (err) {console.warn(err)}
+						this.realOnLoad(...arguments)
+					}
+				} catch (err) {
+					console.error(err)
+				}
+				if (!isGZipped) {
+					args[0]=JSON.stringify(json)
+				} else {
+					console.log("GZIPPED")
+					args[0]=fflate.compressSync(fflate.strToU8(JSON.stringify(json)))
+					console.log(args[0])
+				}
+				XHRSend.apply(this,args)
+			}
+		}
     }
 	real[1] = real[1].replace("https:https://","https://")
+	
     XHROpen.apply(this,real)
 }
+
+let replaceSocialLinksInterval = setInterval(()=>{
+    let socialLinks = document.getElementById('socialContainer')
+    if (socialLinks) {
+        socialLinks.innerHTML=`
+            <br>
+            <input type="checkbox" id="countdowncrystal" name="countdowncrystal"><label for="countdowncrystal">Countdown Crystals </label>
+        `
+        let savedHacks = JSON.parse(localStorage.getItem('enabledHacks')) || {}
+        for (let hack in savedHacks) {
+            if (savedHacks[hack]) {
+                document.getElementById(hack).click()
+                enabledHacks[hack]=1
+            }
+        }
+
+        for (let checkbox of document.querySelectorAll("input[type='checkbox']")) {
+            checkbox.onchange=function() {
+                enabledHacks[checkbox.id]=checkbox.checked
+                localStorage.setItem('enabledHacks',JSON.stringify(enabledHacks))
+                if (checkbox.id=="countdowncrystal") {
+                    alert('this only takes effect after a refresh')
+                }
+            }
+        }
+        console.log('done adding hack checkboxes')
+        clearInterval(replaceSocialLinksInterval)
+    }
+},100)
 </script>
     <script src="https://contenido-prod.akamaized.net/canvas/jquery-1.7.1.min.js" crossorigin="anonymous"></script>
     <script src="https://contenido-prod.akamaized.net/canvas/jsonrpc-jquery-55008228.js" crossorigin="anonymous"></script>
@@ -339,45 +459,45 @@ let timeout = window.setTimeout
         "isLive": true,
         "isFacebook": true,
         "isKingdom": false,
-        "handlebarsJsScriptFullUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/js/handlebars-4.0.10.min.js?_v=ba4zjc&s=1592210522&s=6",
+        "handlebarsJsScriptFullUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/js/handlebars-4.0.10.min.js",
         "kingJsScriptFullUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/pack/king-kingdom.js",
         "facebookAppId": "210831918949520",
         "facebookCanvasPageFullUrl": "https://apps.facebook.com/candycrush/",
         "kingdomApplicationId": "17",
         "kingdomCanvasPageFullUrl": "https://king.com/#!/play/candycrush",
         "adsInitData": "{\"dataStructureVersion\":2,\"kingAppShortName\":\"candycrush\",\"countryCode\":\"CA\",\"language\":\"en\",\"kingBlingHostname\":\"bling.king.com\",\"protocol\":\"https://\",\"sex\":\"u\",\"coreUserId\":14456905465,\"kingAppId\":17,\"signInSourceId\":0,\"age\":-1,\"ageRange\":{\"from\":0,\"to\":0},\"installedKingAppsIdLastVisitMap\":{\"17\":1692138272,\"33\":1690487732},\"videoAdPlacements\":{\"dataStructureVersion\":0,\"kingAppName\":\"CANDYCRUSH\",\"placements\":{\"1\":{\"openx\":\"255735\"},\"2\":{\"openx\":\"264379\"}}},\"userMetrics\":{\"topLevel\":0,\"ab\":{\"exc\":false}}}",
-        "baseCssFullUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/base.css?_v=8d0ry3&s=1592210522&s=6",
+        "baseCssFullUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/base.css",
         "gameViewDecoration": "box-shadow: rgba(0, 0, 0, 0.9) 0px 0px 15px 8px;",
         "fanPageFullUrl": "https://www.facebook.com/pages/Candy-Crush-Saga/244944385603396",
         "faqFullUrl": "http://to.king.com/NHlU",
         "forumFullUrl": "https://care.king.com/en/candy-crush-saga",
         "socialButtonsParameters": {
-            "socialButtonsScriptUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/social_buttons.js?_v=3sk90o&s=1592210522&s=6",
-            "socialButtonsTemplateUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/social_buttons_template.html?_v=1fmqq2k&s=1592210522&s=6",
+            "socialButtonsScriptUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/social_buttons.js",
+            "socialButtonsTemplateUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/social_buttons_template.html",
             "instagramChannelFullUrl": "http://instagram.com/candycrushsaga",
             "youtubeChannelFullUrl": "http://www.youtube.com/CandyCrushOfficial",
             "communityChannelFullUrl": "https://community.king.com/en/candy-crush-saga?utm_source=Facebook&utm_campaign=CCS%20Facebook",
             "twitterHashTag": "CandyCrushSaga",
             "tweetDefaultText": "%22Play+Candy+Crush+with+me%21+--%3E+http%3A%2F%2Fto.king.com%2FzY9l%22",
-            "youtubeLogoUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/youtube.png?_v=vyxxq3&s=1592210522&s=6",
-            "communityLogoUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/community.png?_v=o1z8ej&s=1592210522&s=6",
+            "youtubeLogoUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/youtube.png",
+            "communityLogoUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/community.png",
             "hasSocialFacebook": true,
-            "instagramLogoUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/instagram.png?_v=s441a&s=1592210522&s=6"
+            "instagramLogoUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/instagram.png"
         },
         "browserIncompatibleViewParams": {
             "textVisitDesktop": "Sorry, we do not support your phone.<br/>Please use a desktop browser!",
             "textIncompatibleBrowser": "Sorry, we do not support your browser.<br/>Please use one of the following browsers to play:",
             "textNoWebGl": "We cannot run WebGL, please make sure that you have the latest drivers for your graphic card.<br />Please visit: <a href=\"http://get.webgl.org/\">WebGL</a> to get more information on how to enable it.",
             "textFatal": "You have experienced an error that we are working hard to fix.<br />Please try again in a moment.",
-            "firefoxIconUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/firefox.png?_v=1p9lw6y&s=1592210522&s=6",
-            "chromeIconUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/chrome.png?_v=1531fru&s=1592210522&s=6",
-            "operaIconUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/opera.png?_v=bug7fk&s=1592210522&s=6",
-            "edgeIconUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/edge.png?_v=fqrpxr&s=1592210522&s=6",
-            "safariIconUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/safari.png?_v=14rgrgm&s=1592210522&s=6",
-            "storeAmazonIconUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/store-amazon.png?_v=lp6vc&s=1592210522&s=6",
-            "storeMicrosoftIconUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/store-microsoft.png?_v=tgtwhn&s=1592210522&s=6",
-            "storeGoogleIconUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/store-google.png?_v=1cln5sm&s=1592210522&s=6",
-            "storeAppleIconUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/store-apple.png?_v=op2utx&s=1592210522&s=6",
+            "firefoxIconUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/firefox.png",
+            "chromeIconUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/chrome.png",
+            "operaIconUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/opera.png",
+            "edgeIconUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/edge.png",
+            "safariIconUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/safari.png",
+            "storeAmazonIconUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/store-amazon.png",
+            "storeMicrosoftIconUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/store-microsoft.png",
+            "storeGoogleIconUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/store-google.png",
+            "storeAppleIconUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/store-apple.png",
             "playStoreGameUrl": "https://play.google.com/store/apps/details?id=com.king.candycrushsaga",
             "iosStoreGameUrl": "https://itunes.apple.com/us/app/candy-crush-saga/id553834731?ls=1&mt=8",
             "amazonStoreGameUrl": "https://www.amazon.com/gp/product/B00FAPF5U0",
@@ -386,44 +506,44 @@ let timeout = window.setTimeout
         "copyrightYear": 2023
     },
     "fictionFactoryParameters": {
-        "gameTemplateLoaderUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/fictionFactory.js?_v=gz9xy7&s=1592210522&s=6",
-        "gameTemplateUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/fictionFactory_template.html?_v=1ucw2fr&s=1592210522&s=6",
-        "juegoOrSagaScriptUrl": "https://king-candycrush-prod.secure2.footprint.net/saga/js/Saga.js?_v=&s=1592210522&s=6",
-        "fictionFactoryInitJsUrl": "https://king-candycrush-prod.secure2.footprint.net/client/ff.min.js?_v=s7aogz&s=1592210522&s=6",
+        "gameTemplateLoaderUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/fictionFactory.js",
+        "gameTemplateUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/fictionFactory_template.html",
+        "juegoOrSagaScriptUrl": "https://king-candycrush-prod.secure2.footprint.net/saga/js/Saga.js",
+        "fictionFactoryInitJsUrl": "https://king-candycrush-prod.secure2.footprint.net/client/ff.min.js",
         "slayerUrl": "https://candy.enderspearl.repl.co",
         "gameWidth": 896,
         "gameHeight": 640,
-        "pageBackgroundImageUrl": "https://king-candycrush-prod.secure2.footprint.net/images/backgrounds/bg-ccs-gradient.jpg?_v=1j3dttl&s=1592210522&s=6",
+        "pageBackgroundImageUrl": "https://king-candycrush-prod.secure2.footprint.net/images/backgrounds/bg-ccs-gradient.jpg",
         "appVersion": "1.263.0.1",
         "environment": "LIVE",
-        "logoImgUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/logo.png?_v=1j1ujb1&s=1592210522&s=6",
+        "logoImgUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/logo.png",
         "textFrameDownloadingGame": [
             "Downloading..."
         ],
-        "gameContainerBackgroundImageUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/frameDownloadingGameBackground.png?_v=5okixp&s=1592210522&s=6",
-        "fictionFactoryGameJsLoaderUrl": "https://king-candycrush-prod.secure2.footprint.net/client/candycrushsaga_asm.js?_v=&s=1592210522&s=6",
-        "fictionFactoryAsmUrl": "https://king-candycrush-prod.secure2.footprint.net/client/candycrushsaga_asm.asm.js?_v=&s=1592210522&s=6",
-        "fictionFactoryJsMemUrl": "https://king-candycrush-prod.secure2.footprint.net/client/candycrushsaga.js.mem?_v=&s=1592210522&s=6",
-        "fictionFactoryAssetsDataUrl": "https://king-candycrush-prod.secure2.footprint.net/client/assets.data?_v=1je7ksn&s=1592210522&s=6",
+        "gameContainerBackgroundImageUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/frameDownloadingGameBackground.png",
+        "fictionFactoryGameJsLoaderUrl": "https://king-candycrush-prod.secure2.footprint.net/client/candycrushsaga_asm.js",
+        "fictionFactoryAsmUrl": "https://king-candycrush-prod.secure2.footprint.net/client/candycrushsaga_asm.asm.js",
+        "fictionFactoryJsMemUrl": "https://king-candycrush-prod.secure2.footprint.net/client/candycrushsaga.js.mem",
+        "fictionFactoryAssetsDataUrl": "https://king-candycrush-prod.secure2.footprint.net/client/assets.data",
         "fictionFactoryAssetsDataUrls": [
-            "https://king-candycrush-prod.secure2.footprint.net/client/assets_9.data?_v=1obemx0&s=1592210522&s=6",
-            "https://king-candycrush-prod.secure2.footprint.net/client/assets_2.data?_v=cdrtr8&s=1592210522&s=6",
-            "https://king-candycrush-prod.secure2.footprint.net/client/assets_5.data?_v=10hd6zn&s=1592210522&s=6",
-            "https://king-candycrush-prod.secure2.footprint.net/client/assets_6.data?_v=js3lev&s=1592210522&s=6",
-            "https://king-candycrush-prod.secure2.footprint.net/client/assets_3.data?_v=1ffdam1&s=1592210522&s=6",
-            "https://king-candycrush-prod.secure2.footprint.net/client/assets_1.data?_v=1w0hfxn&s=1592210522&s=6",
-            "https://king-candycrush-prod.secure2.footprint.net/client/assets_7.data?_v=1v7a1xc&s=1592210522&s=6",
-            "https://king-candycrush-prod.secure2.footprint.net/client/assets_4.data?_v=19xdaig&s=1592210522&s=6",
-            "https://king-candycrush-prod.secure2.footprint.net/client/assets_8.data?_v=4fll5f&s=1592210522&s=6"
+            "https://king-candycrush-prod.secure2.footprint.net/client/assets_2.data",
+            "https://king-candycrush-prod.secure2.footprint.net/client/assets_9.data",
+            "https://king-candycrush-prod.secure2.footprint.net/client/assets_5.data",
+            "https://king-candycrush-prod.secure2.footprint.net/client/assets_6.data",
+            "https://king-candycrush-prod.secure2.footprint.net/client/assets_3.data",
+            "https://king-candycrush-prod.secure2.footprint.net/client/assets_1.data",
+            "https://king-candycrush-prod.secure2.footprint.net/client/assets_7.data",
+            "https://king-candycrush-prod.secure2.footprint.net/client/assets_4.data",
+            "https://king-candycrush-prod.secure2.footprint.net/client/assets_8.data"
         ],
-        "fictionFactoryAssetsMetaDataUrl": "https://king-candycrush-prod.secure2.footprint.net/client/assets.metadata?_v=2x8fsg&s=1592210522&s=6",
+        "fictionFactoryAssetsMetaDataUrl": "https://king-candycrush-prod.secure2.footprint.net/client/assets.metadata",
         "fictionFactoryBuildId": "",
-        "fictionGameClientSettingsFile": "https://king-candycrush-prod.secure2.footprint.net/client/game_client_settings.json?_v=1qzz5zl&s=1592210522&s=6",
-        "fictionGameClientSettingsMd5File": "https://king-candycrush-prod.secure2.footprint.net/client/game_client_settings.json.md5?_v=1o3q22j&s=1592210522&s=6",
-        "fictionFactoryWasmGameJsLoaderUrl": "https://king-candycrush-prod.secure2.footprint.net/client/candycrushsaga.js?_v=1taoa51&s=1592210522&s=6",
-        "fictionFactoryWasmUrl": "https://king-candycrush-prod.secure2.footprint.net/client/candycrushsaga.wasm?_v=1u6ypx2&s=1592210522&s=6",
-        "fictionFactoryWasmSettingsUrl": "https://king-candycrush-prod.secure2.footprint.net/client/game_client_settings.json?_v=1qzz5zl&s=1592210522&s=6",
-        "downloadingGameLogoUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/logo.png?_v=1j1ujb1&s=1592210522&s=6",
+        "fictionGameClientSettingsFile": "https://king-candycrush-prod.secure2.footprint.net/client/game_client_settings.json",
+        "fictionGameClientSettingsMd5File": "https://king-candycrush-prod.secure2.footprint.net/client/game_client_settings.json.md5",
+        "fictionFactoryWasmGameJsLoaderUrl": "https://king-candycrush-prod.secure2.footprint.net/client/candycrushsaga.js",
+        "fictionFactoryWasmUrl": "https://king-candycrush-prod.secure2.footprint.net/client/candycrushsaga.wasm",
+        "fictionFactoryWasmSettingsUrl": "https://king-candycrush-prod.secure2.footprint.net/client/game_client_settings.json",
+        "downloadingGameLogoUrl": "https://king-candycrush-prod.secure2.footprint.net/plataforma/canvas/images/logo.png",
         "legacyParameters": {},
         "gzipPostThresholdBytes": 1024,
         "preallocateStorage": 28311552,
@@ -438,7 +558,7 @@ let timeout = window.setTimeout
             "isOperaInAlternativeBrowserList": true,
             "isEdgeInAlternativeBrowserList": true,
             "isSafariInAlternativeBrowserList": true,
-            "sadCharacterImageUrl": "https://king-candycrush-prod.secure2.footprint.net/images/client_assets/yeti.png?_v=1ylsrnl&s=1592210522&s=6"
+            "sadCharacterImageUrl": "https://king-candycrush-prod.secure2.footprint.net/images/client_assets/yeti.png"
         }
     },
     "unity3dParameters": {

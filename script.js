@@ -19,7 +19,12 @@ const rainbowcannonright = {"155":"rainbow_rapid_cannon_right"}
 const cannons = {"027": "cannon_ingredient", "028": "cannon_licorice", "029": "cannon_bomb", "030": "cannon_mulock_key", "031": "cannon_mystery", "067": "cannon_chameleon", "068": "cannon_lucky", "069": "cannon_extra_time_and_moves", "071": "cannon_striped", "072": "cannon_wrapped_candy", "090": "cannon_block_waffle", "107": "cannon_striped_horizontal", "108": "cannon_striped_vertical", "127": "cannon_colorbomb", "128": "cannon_fish", "137": "cannon_sugar_coat", "214": "cannon_blue", "215": "cannon_green", "216": "cannon_orange", "217": "cannon_purple", "218": "cannon_red", "219": "cannon_yellow"}
 const path = {"140": "rainbow_stream_vertical", "141": "rainbow_stream_horizontal", "142": "rainbow_stream_BL", "143": "rainbow_stream_BR", "144": "rainbow_stream_TL", "145": "rainbow_stream_TR", "146": "rainbow_stream_TBL", "147": "rainbow_stream_TBR", "148": "rainbow_stream_TLR", "149": "rainbow_stream_BLR", "150": "rainbow_stream_all_directions", "151": "rainbow_stream_intersection_point"}
 const leaflayer = {"063":'leaf'}
-const elements_ids = Object.assign({}, rainbowcannontop, rainbowcannonbottom, rainbowcannonleft, rainbowcannonright, leaflayer, colors, cannons, walldown, wallup, bonbon, path, wallright, wallleft, coloredCandy, candy, blockers, tiles, ingredients, sugarCoats, locks, glass, {"010": "ingredients_exit", "026": "candy_entrance", "005": "candy_cannon"})
+
+//014 and 015 are unused ids so i'm using them to designate invisible porta;s
+const portalentrance = {'012':'portal_entrance','014':'portal_entrance_hidden'}
+const portalexit = {'013':'portal_exit','015':'portal_exit_hidden'}
+
+const elements_ids = Object.assign({}, portalentrance, portalexit, rainbowcannontop, rainbowcannonbottom, rainbowcannonleft, rainbowcannonright, leaflayer, colors, cannons, walldown, wallup, bonbon, path, wallright, wallleft, coloredCandy, candy, blockers, tiles, ingredients, sugarCoats, locks, glass, {"010": "ingredients_exit", "026": "candy_entrance", "005": "candy_cannon"})
 const elements_names = _.invert(elements_ids)
 
 const stretched = ["009", "019", "020", "021", "022", "023", "025", "122", "123", "124", "134", "135", "136", "054", "157", "158", "024", "211", "212", "213", "220", "221", "159", "160", "161", "162", "163", "062"].concat(Object.keys(bonbon))
@@ -40,11 +45,16 @@ const cannonCodes = [["fallingIcing", "Level"], ["licorice"], ["luckyCandy"], ["
 
 var currentMode = "Classic moves"
 
+var lastPortalObject = undefined
+var isPortalTimeout
+
 //Order of the layers
 const layers = [
     "tile",
     "path",
     "leaf",
+    "portal_entrance",
+    "portal_exit",
     "normal",
     "bonbonoverlay",
     "sugarcoat",
@@ -82,7 +92,9 @@ const layerElements = {
     "rainbow_cannon_right":[].concat(Object.keys(rainbowcannonright)),
     "ingredients_exit": ["010"],
     "candy_entrance": ["026"],
-    "candy_cannon": ["005"].concat(Object.keys(cannons))
+    "candy_cannon": ["005"].concat(Object.keys(cannons)),
+    "portal_entrance":[].concat(Object.keys(portalentrance)),
+    "portal_exit":[].concat(Object.keys(portalexit))
 }
 
 var preferredColors = [0,1,2,3,4]
@@ -370,11 +382,47 @@ function removeCake(object){
     })
 }
 
+function removePortal(object,isExit) {
+    let level = document.getElementById("level")
+    let objToDelete
+    //console.log('removing portal ' + isExit)
+    if (isExit) {
+        object.setAttribute('portal_exit','')
+        object.querySelector(".portal_exit").src = ''
+        object.querySelector(".portal_exit").setAttribute("class", "portal_exit default small")
+        try {
+            objToDelete = level.children[object.getAttribute('portalentrancerow')].children[object.getAttribute('portalentrancecol')]
+            objToDelete.setAttribute('portal_entrance','')
+            objToDelete.querySelector(".portal_entrance").src = ''
+            objToDelete.setAttribute('portalexitrow','')
+            objToDelete.setAttribute('portalexitcol','')
+        } catch (err) {}
+        object.setAttribute('portalentrancerow','')
+        object.setAttribute('portalentrancecol','')
+    } else {
+        object.setAttribute('portal_entrance','')
+        object.querySelector(".portal_entrance").src = ''
+        object.querySelector(".portal_entrance").setAttribute("class", "portal_entrance default small")
+        try {
+            objToDelete = level.children[object.getAttribute('portalexitrow')].children[object.getAttribute('portalexitcol')]
+            objToDelete.setAttribute('portal_exit','')
+            objToDelete.querySelector(".portal_exit").src = ''
+            objToDelete.setAttribute('portalentrancerow','')
+            objToDelete.setAttribute('portalentrancecol','')
+        } catch (err) {}
+        object.setAttribute('portalexitrow','')
+        object.setAttribute('portalexitcol','')
+    }
+
+}
+
 function updateTile(object){
     if (elementLayer !== "tile" && object.getAttribute("tile") === "000"){
         //Do not update tile if its empty
         return
     }
+
+    if (isPortalTimeout) {return}
 
     let level = document.getElementById("level")
 
@@ -386,10 +434,35 @@ function updateTile(object){
         removeCake(object)
     }
 
+    let isPortalEntrance = object.getAttribute('portal_entrance')
+    let isPortalExit = object.getAttribute('portal_exit')
+
     let image = object.querySelector("." + elementLayer)
 
     try{
-        if (elementLayer == "wallup"){
+        if (elementLayer == "portal_entrance") {
+            //remove existing portal and its coresponding one
+            if (isPortalEntrance) {
+                //console.log('removing portal entrance')
+                removePortal(object,false)
+            }
+            lastPortalObject = object
+        }
+        else if (elementLayer == "portal_exit") {
+            //remove existing portal and its corresponding one
+            if (isPortalExit) {
+                //console.log('removing portal exit')
+                removePortal(object,true)
+            }
+
+            //set corresponding portal rows/cols
+            object.setAttribute('portalentrancerow',lastPortalObject.getAttribute('pos-row'))
+            object.setAttribute('portalentrancecol',lastPortalObject.getAttribute('pos-col'))
+            lastPortalObject.setAttribute('portalexitrow',row)
+            lastPortalObject.setAttribute('portalexitcol',column)
+            lastPortalObject = undefined
+        }
+        else if (elementLayer == "wallup"){
             let otherObject = level.children[row - 1].children[column]
             let hasWall = otherObject.getAttribute("walldown")
             if (hasWall !== null && hasWall !== ""){
@@ -428,6 +501,18 @@ function updateTile(object){
             if (isCake !== undefined && isCake !== ""){
                 removeCake(object)
             }
+
+            if (isPortalEntrance) {
+                try {
+                    removePortal(object,false)
+                } catch (err) {}
+            }
+            if (isPortalExit) {
+                try {
+                    removePortal(object,true)
+                } catch(err) {}
+            }
+
             //Make space empty if empty selected
             layers.forEach(function(layer){
                 if (object.hasAttribute(layer) && layer != "tile"){
@@ -449,6 +534,14 @@ function updateTile(object){
         if (selectedElement === "000"){
             if (isCake !== undefined && isCake !== ""){
                 removeCake(object)
+            }
+
+            if (isPortalEntrance) {
+                removePortal(object,false)
+            }
+
+            if (isPortalExit) {
+                removePortal(object,true)
             }
 
             layers.forEach(function(layer){
@@ -658,8 +751,24 @@ function updateTile(object){
             object.setAttribute("normal", selectedElement)
             object.setAttribute("color", "")
         }
-    }
-    else{
+    } else if (elementLayer=='portal_entrance' || elementLayer=='portal_exit') {
+        //set image
+        object.setAttribute(elementLayer, selectedElement)
+        image.src = elementsFolder + elements_ids[selectedElement] + ".png"
+
+        //switch to other portal if one is placed
+        if (selectedElement=='012') {
+            updateSelection(false,'portal_exit','portal_exit')
+        } else if (selectedElement == '014') {
+            updateSelection(false,'portal_exit_hidden','portal_exit')
+        } else if (selectedElement=='013') {
+            isPortalTimeout=true
+            updateSelection(false,'portal_entrance','portal_entrance')
+        } else if (selectedElement == '015') {
+            isPortalTimeout=true
+            updateSelection(false,'portal_entrance_hidden','portal_entrance')
+        }
+    } else {
         object.setAttribute(elementLayer, selectedElement)
         image.src = elementsFolder + elements_ids[selectedElement] + ".png"
     }
@@ -693,13 +802,19 @@ function updateTile(object){
 }
 
 function updateSelection(object, element, layer){
-    try{
-        document.querySelector(".elementselected").classList.remove("elementselected")
+    if (object) {
+        try{
+            document.querySelector(".elementselected").classList.remove("elementselected")
+        }
+        catch{}
+        object.classList.add("elementselected")
     }
-    catch{}
-    object.classList.add("elementselected")
     selectedElement = elements_names[element]
     elementLayer = layer
+    //console.log(layer)
+    if (lastPortalObject && layer!=='portal_exit' && layer!=='portal_entrance') {
+        removePortal(lastPortalObject)
+    }
 }
 
 function updateElmState(object){
@@ -770,9 +885,8 @@ function importLevel(levelData){
     try{
         let levelObject = newLevel
         let childrenRows = [].slice.call(levelObject.children)
-
+        //console.log(childrenRows)
         let blacklistedCake = []
-
         childrenRows.forEach(function(row, rIndex){
             let objects = [].slice.call(row.children)
             let color = "002"
@@ -806,6 +920,11 @@ function importLevel(levelData){
                     if (objectId === "085") objectId="069"
                     if (objectId === '084') objectId='050'
 
+                    //portals are dealt with later
+                    if (objectId === '011' || objectId==='012'||objectId==='013'||objectId==='014'||objectId==='015') {
+                        return
+                    }
+
                     if (objectId == "035"){
                         if (blacklistedCake.includes(String(rIndex) + String(cIndex))){
                             return
@@ -837,6 +956,46 @@ function importLevel(levelData){
                 })
             })
         })
+        if (levelData.portals) {
+            for (let portal of levelData.portals) {
+                //console.log(portal)
+                elementLayer = 'portal_entrance'
+                if (portal[0][2]==14) {
+                    selectedElement = '012'
+                } else {
+                    selectedElement = '014'
+                }
+                
+                try {
+                    updateTile([].slice.call(childrenRows[portal[0][1]].children)[portal[0][0]])
+                    isPortalTimeout=false
+                }
+                catch (err) {
+                    console.warn(err)
+                    elementLayer = "tile"
+                    selectedElement = "none"
+                }
+
+                elementLayer = 'portal_exit'
+                if (portal[1][2]==14) {
+                    selectedElement = '013'
+                } else {
+                    selectedElement = '015'
+                }
+                
+                try {
+                    updateTile([].slice.call(childrenRows[portal[1][1]].children)[portal[1][0]])
+                    isPortalTimeout=false
+                }
+                catch (err) {
+                    console.warn(err)
+                    elementLayer = "tile"
+                    selectedElement = "none"
+                }
+            }
+        }
+
+
         originalLevel.remove()
         newLevel.style.display = "block"
     }
@@ -984,6 +1143,9 @@ function importLevel(levelData){
     document.getElementById("initialMovesUntilMoonStruck").value = levelData.initialMovesUntilMoonStruck || ''
     document.getElementById("initialMovesDuringMoonStruck").value = levelData.initialMovesDuringMoonStruck || ''
     document.getElementById('maxAllowedScaleDiff').value = levelData.maxAllowedScaleDiff || ''
+
+    //set last portal to none
+    lastPortalObject = undefined
 }
 
 function displayImportLevelUI(){
@@ -1010,6 +1172,7 @@ function exportLevel(){
     let levelArray = []
     let levelObject = document.getElementById("level")
     let level = {}
+    level['portals'] = []
     if (currentMode.includes("Rainbow Rapids")) {
         level.rainbowRapidsTargets = 0
     }
@@ -1024,12 +1187,12 @@ function exportLevel(){
             }
             let candyCannon = JSON.parse(object.getAttribute("candy_cannon") || '[]')
             if (currentMode !== "Classic" && currentMode !== "Jelly Time" && candyCannon.includes('069')) {
-                let i=0
+                //let j=0
                 for (let cannon of candyCannon) {
                     if (cannon==='069') {
                         candyCannon[i]='085'
                     }
-                    i++
+                    //j++
                 }
             }
             console.log(candyCannon)
@@ -1040,6 +1203,8 @@ function exportLevel(){
             toLoopThrough.splice(toLoopThrough.indexOf("candy_cannon"), 1)
             
             toLoopThrough.forEach(function(layer){
+                //i is column
+                //levelArray.length is row
                 let element = ""
                 if (object.hasAttribute(layer)){
                     element = object.getAttribute(layer)
@@ -1058,6 +1223,21 @@ function exportLevel(){
                     }
                 }
 
+                if (element=="013" || element=="015") {
+                    //element="011013"
+                }
+
+                if (element=="012" || element=="014") {
+                    let row2 = parseInt(object.getAttribute('portalexitrow'))
+                    let col2 = parseInt(object.getAttribute('portalexitcol'))
+                    let portal = [[i,levelArray.length],[col2,row2]]
+                    if (element=='012') {
+                        portal[0][2]=14
+                        portal[1][2]=14
+                    }
+                    level.portals.push(portal)
+                    //element='011012'
+                }
 
                 if (!totalCode.includes(element) && element != ""){
                     totalCode.push(element)
@@ -1092,7 +1272,6 @@ function exportLevel(){
     level['protocolVersion'] = "0.3"
     level['randomSeed'] = 0
 
-    level['portals'] = []
     level['gates'] = []
     level['orlocks'] = []
     level['skulls'] = []
@@ -1354,6 +1533,7 @@ createNewTable()
 
 document.addEventListener('mouseup', function() {
     isDown = false;
+    isPortalTimeout = false;
 }, true);
 
 //Auto set up left GUI colors

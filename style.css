@@ -456,6 +456,20 @@ img[src="elements/cake_top_right.png"], img[src="elements/cake_bottom_right.png"
     pointer-events: none;
 }
 
+#level .portal_exit {
+    position: absolute;
+    bottom: 170%;
+    margin-left: 1%;
+    pointer-events: none;
+}
+
+#level .portal_entrance {
+    position: absolute;
+    top: 85%;
+    margin-left: 1%;
+    pointer-events: none;
+}
+
 #level .rainbow_cannon_left {
     position: absolute;
     transform: translateX(-30px);

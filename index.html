@@ -507,6 +507,19 @@
                         <div class="selectelement" element="magic_mixer" gamelayer="normal"></div>
                     </div>
 
+                    <button class="dropdown" onclick="toggleDropdown(this)" associd="portals">
+                        <div style="display: flex; justify-content: space-between;">
+                            <p class='MergePro' style="padding-left: 5%; ">Portals</p>
+                            <p class="arrow" style="display: inline; padding-right: 5%; transform: rotate(90deg);">&raquo</p>
+                          </div>
+                    </button>
+                    <div class="dropped" id="portals" style="display:none">
+                        <div class="selectelement" element="portal_entrance" gamelayer="portal_entrance"></div>
+                        <div class="selectelement" element="portal_entrance_hidden" gamelayer="portal_entrance"></div>
+                        <!--<div class="selectelement" element="portal_exit" gamelayer="portal_exit"></div>
+                        <div class="selectelement" element="portal_exit_hidden" gamelayer="portal_exit"></div>-->
+                    </div>
+
                     <button class="dropdown" onclick="toggleDropdown(this)" associd="walls">
                         <div style="display: flex; justify-content: space-between;">
                             <p class='MergePro' style="padding-left: 5%; ">Walls</p>

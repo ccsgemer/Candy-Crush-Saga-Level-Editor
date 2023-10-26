@@ -33,7 +33,7 @@
                     <div class="navbarflex">
                     </div>
                     <div class="navbarflex">
-                        <button style="margin: auto; display: block;" onclick="window.open('https://candy-test.theblakiemon.repl.co?map=' + JSON.stringify(exportLevel()), '_blank')">▶ Play Level</button>
+                        <button style="margin: auto; display: block;" onclick="window.open('game.html?sdkPort=:443&cdnHost=k1.midasplayer.com&level=' + JSON.stringify(exportLevel()), '_blank')">▶ Play Level</button>
                         <button style="margin: auto; display: block;" onclick="exportLevelUI()">⏏ Export Level</button>
                         <button style="margin: auto; display: block;" onclick="displayImportLevelUI()"><small>⤵</small> Import Level</button>
                     </div>
@@ -48,38 +48,92 @@
                     <label for="movesoption" class="leveltypelabel" style="margin: 5px;" onclick="selectMode()">
                         <img src="ui/playmode_icon_moves.png" style="max-width: 30px; max-height: 30px;">
                         <div class="break"></div>
-                        <label class='DroidSans' style="color: white; text-align: center;">Moves</label>
+                        <!-- <label class='DroidSans' style="color: white; text-align: center;">Moves</label> -->
                         <input type="radio" id="movesoption" name="leveltype" value="Classic moves" checked>
                     </label>
                     <label class="leveltypelabel" for="jellyoption" style="margin: 5px;" onclick="selectMode()">
                         <img src="ui/playmode_icon_jelly.png" style="max-width: 30px; max-height: 30px;">
                         <div class="break"></div>
-                        <label class='DroidSans' style="color: white; text-align: center;">Jelly</label>
+                        <!-- <label class='DroidSans' style="color: white; text-align: center;">Jelly</label> -->
                         <input type="radio" id="jellyoption" name="leveltype" value="Light up">
                     </label>
                     <label class="leveltypelabel" for="ingredientsoption" style="margin: 5px;" onclick="selectMode()">
                         <img src="ui/playmode_icon_drop.png" style="max-width: 30px; max-height: 30px;">
                         <div class="break"></div>
-                        <label class='DroidSans' style="color: white; text-align: center;">Ingredients</label>
+                        <!-- <label class='DroidSans' style="color: white; text-align: center;">Ingredients</label> -->
                         <input type="radio" id="ingredientsoption" name="leveltype" value="Drop down">
                     </label>
                     <label class="leveltypelabel" for="orderoption" style="margin: 5px;" onclick="selectMode()">
                         <img src="ui/playmode_icon_order.png" style="max-width: 30px; max-height: 30px;">
                         <div class="break"></div>
-                        <label class='DroidSans' style="color: white; text-align: center;">Order</label>
+                        <!-- <label class='DroidSans' style="color: white; text-align: center;">Order</label> -->
                         <input type="radio" id="orderoption" name="leveltype" value="Order">
                     </label>
                     <label class="leveltypelabel" for="timedoption" style="margin: 5px;" onclick="selectMode()">
                         <img src="ui/playmode_icon_time.png" style="max-width: 30px; max-height: 30px;">
                         <div class="break"></div>
-                        <label class='DroidSans' style="color: white; text-align: center;">Timed</label>
+                        <!-- <label class='DroidSans' style="color: white; text-align: center;">Timed</label> -->
                         <input type="radio" id="timedoption" name="leveltype" value="Classic">
                     </label>
                     <label class="leveltypelabel" for="rainbowrapidsoption" style="margin: 5px;" onclick="selectMode()">
                         <img src="ui/playmode_icon_rainbowrapids.png" style="max-width: 30px; max-height: 30px;">
                         <div class="break"></div>
-                        <label class='DroidSans' style="color: white; text-align: center;">Rainbow Rapids</label>
+                        <!-- <label class='DroidSans' style="color: white; text-align: center;">Rainbow Rapids</label> -->
                         <input type="radio" id="rainbowrapidsoption" name="leveltype" value="Rainbow Rapids">
+                    </label>
+                    <label class="leveltypelabel" for="jellyorderoption" style="margin: 5px;" onclick="selectMode()">
+                        <img src="ui/playmode_icon_jellyorder.png" style="max-width: 30px; max-height: 30px;">
+                        <div class="break"></div>
+                        <!-- <label class='DroidSans' style="color: white; text-align: center;">Jelly Order</label> -->
+                        <input type="radio" id="jellyorderoption" name="leveltype" value="Jelly Order">
+                    </label>
+                    <label class="leveltypelabel" for="jellyingredientsoption" style="margin: 5px;" onclick="selectMode()">
+                        <img src="ui/playmode_icon_jellydrop.png" style="max-width: 30px; max-height: 30px;">
+                        <div class="break"></div>
+                        <!-- <label class='DroidSans' style="color: white; text-align: center;">Jelly Ingredients</label> -->
+                        <input type="radio" id="jellyingredientsoption" name="leveltype" value="Jelly Drop down">
+                    </label>
+                    <label class="leveltypelabel" for="orderingredientsoption" style="margin: 5px;" onclick="selectMode()">
+                        <img src="ui/playmode_icon_orderdrop.png" style="max-width: 30px; max-height: 30px;">
+                        <div class="break"></div>
+                        <!-- <label class='DroidSans' style="color: white; text-align: center;">Order Ingredients</label> -->
+                        <input type="radio" id="orderingredientsoption" name="leveltype" value="Order Drop Down">
+                    </label>
+                    <label class="leveltypelabel" for="rainbowjellyoption" style="margin: 5px;" onclick="selectMode()">
+                        <img src="ui/playmode_icon_rainbowjelly.png" style="max-width: 30px; max-height: 30px;">
+                        <div class="break"></div>
+                        <!-- <label class='DroidSans' style="color: white; text-align: center;">Rainbow Rapids Jelly</label> -->
+                        <input type="radio" id="rainbowjellyoption" name="leveltype" value="Rainbow Rapids Jelly">
+                    </label>
+                    <label class="leveltypelabel" for="rainbowingredientsoption" style="margin: 5px;" onclick="selectMode()">
+                        <img src="ui/playmode_icon_rainbowdrop.png" style="max-width: 30px; max-height: 30px;">
+                        <div class="break"></div>
+                        <!-- <label class='DroidSans' style="color: white; text-align: center;">Rainbow Rapids Ingredients</label> -->
+                        <input type="radio" id="rainbowingredientsoption" name="leveltype" value="Rainbow Rapids Drop Down">
+                    </label>
+                    <label class="leveltypelabel" for="rainboworderoption" style="margin: 5px;" onclick="selectMode()">
+                        <img src="ui/playmode_icon_rainboworder.png" style="max-width: 30px; max-height: 30px;">
+                        <div class="break"></div>
+                        <!-- <label class='DroidSans' style="color: white; text-align: center;">Rainbow Rapids Order</label> -->
+                        <input type="radio" id="rainboworderoption" name="leveltype" value="Rainbow Rapids Order">
+                    </label>
+                    <label class="leveltypelabel" for="jellytimeoption" style="margin: 5px;" onclick="selectMode()">
+                        <img src="ui/playmode_icon_jellytime.png" style="max-width: 30px; max-height: 30px;">
+                        <div class="break"></div>
+                        <!-- <label class='DroidSans' style="color: white; text-align: center;"><s>Jelly Time</s></label> -->
+                        <input type="radio" id="jellytimeoption" name="leveltype" value="Jelly Time">
+                    </label>
+                    <label class="leveltypelabel" for="froggeroption" style="margin: 5px;" onclick="selectMode()">
+                        <img src="ui/playmode_icon_frogger.png" style="max-width: 30px; max-height: 30px;">
+                        <div class="break"></div>
+                        <!-- <label class='DroidSans' style="color: white; text-align: center;"><s>Frogger</s></label> -->
+                        <input type="radio" id="froggeroption" name="leveltype" value="Frogger">
+                    </label>
+                    <label class="leveltypelabel" for="jellycoloroption" style="margin: 5px;" onclick="selectMode()">
+                        <img src="ui/playmode_icon_jelly_color.png" style="max-width: 30px; max-height: 30px;">
+                        <div class="break"></div>
+                        <!-- <label class='DroidSans' style="color: white; text-align: center;"><s>Jelly Color</s></label> -->
+                        <input type="radio" id="jellycoloroption" name="leveltype" value="Jelly Color">
                     </label>
                 </div>
                 <div class="sideoptions" id="moves-section">
@@ -129,6 +183,22 @@
                     <label for="moves" class='DroidSans' style="margin: 10px; display: block; color: white; text-align: center;">Disable Starting Boosters:</label>
                     <input style="text-align: center;" type="checkbox" name="disablebooster" id="disablebooster">
                 </div>
+
+                <div class="sidetitle">
+                    <p class='MergePro' style="font-weight: bold; text-align: center; color: blueviolet;">Dreamworld:</p>
+                </div>
+                <div class="sideoptions">
+                    <label for="isOwlModeEnabled" class='DroidSans' style="margin: 10px; display: block; color: white; text-align: center;">Dreamworld Level?</label>
+                    <input style="text-align: center;" type="checkbox" name="isOwlModeEnabled" id="isOwlModeEnabled" onchange="toggleDreamworld(this)">
+                </div>
+                <div class="sideoptions" id="dreamworldoptions" style="display: none;">
+                    <label for="initialMovesUntilMoonStruck" class='DroidSans' style="margin: 10px; display: block; color: white; text-align: center;">Moves Until Moonstruck</label>
+                    <input style="width: 50px; text-align: center;" type="number" name="initialMovesUntilMoonStruck" id="initialMovesUntilMoonStruck" placeholder="5">
+                    <label for="initialMovesDuringMoonStruck"  class='DroidSans' style="margin: 10px; display: block; color: white; text-align: center;">Moonstruck Length</label>
+                    <input style="width: 50px; text-align: center;" type="number" name="initialMovesDuringMoonStruck" id="initialMovesDuringMoonStruck" placeholder="3">
+                    <label for="maxAllowedScaleDiff"  class='DroidSans' style="margin: 10px; display: block; color: white; text-align: center;">Max Scale Difference</label>
+                    <input style="width: 50px; text-align: center;" type="number" name="maxAllowedScaleDiff" id="maxAllowedScaleDiff" placeholder="10">
+                </div>
                 <div id="requirements-options-section" style="display: none;">
                     <div class="sidetitle">
                         <p class='MergePro' style="font-weight: bold; color: white; text-align: center;">Requirements:</p>
@@ -171,7 +241,8 @@
                         <tr class="cannonpref" elm="stripedCandy" image="elements/cannon_striped.png" tick=""></tr>
                         <tr class="cannonpref" elm="stripedRowCandy" image="elements/cannon_striped_horizontal.png" tick=""></tr>
                         <tr class="cannonpref" elm="stripedColumnCandy" image="elements/cannon_striped_vertical.png" tick=""></tr>
-                        <tr class="cannonpref" elm="timeCandy" image="elements/extra_time_and_moves.png" tick=""></tr>
+                        <tr class="cannonpref" elm="timeCandy" image="elements/cannon_time_candy.png" tick=""></tr>
+                        <tr class="cannonpref" elm="extraMoves" image="elements/extra_moves.png" tick=""></tr>
                         <tr class="cannonpref" elm="wrappedCandy" image="elements/cannon_wrapped_candy.png" tick=""></tr>
                         <tr class="cannonpref" elm="colorBomb" image="elements/cannon_colorbomb.png" tick=""></tr>
                         <tr class="cannonpref" elm="fish" image="elements/cannon_fish.png" tick=""></tr>
@@ -192,6 +263,24 @@
                                 </td>
                         </tr>
                     </table>
+                </div>
+
+
+                <div id="mixer-options-section" style="display: block;">
+                    <div class="sidetitle">
+                        <p class="MergePro" style="font-weight: bold; color: white; text-align: center;">Mixer Options:</p>
+                    </div>
+                    <div>
+                        <p class='DroidSans' style="margin: 10px; display: block; color: white; text-align: center;">Max Blockers:</p>
+                        <input type="number" style="margin-left: 40%; width: 20%; text-align: center;" id="evilSpawnerAmount" placeholder="0" title="Max Spawned Blockers">
+                        <div class="break"></div>
+                        <p class='DroidSans' style="margin: 10px; display: block; color: white; text-align: center;">Spawn Interval:</p>
+                        <input type="number" style="margin-left: 40%; width: 20%; text-align: center;"" id="evilSpawnerInterval" placeholder="0" title="Spawn Interval">
+                        <div class="break"></div>
+                        <button style="margin-right: auto; margin-left: auto; display: block; height: fit-content;" onclick="addMixerOption()" id="addmixer">Add Mixer Blocker</button>
+                    </div>
+                    <div id="mixeroptions">
+                    </div>
                 </div>
             </div>
 
@@ -252,6 +341,7 @@
                     <div class="dropped" id="frogss" style="display:none">
                         <div class="selectcoloredelement" element="frog"></div>
                         <div class="selectelement" element="chocolate_frog" gamelayer="normal"></div>
+                        <div class="selectelement" element="leaf" gamelayer="leaf"></div>
                     </div>
 
                     <button class="dropdown" onclick="toggleDropdown(this)" associd="tiles">
@@ -281,6 +371,7 @@
                           </div>
                     </button>
                     <div class="dropped" id="blockers" style="display:none">
+                        <div class="selectelement" element="block_frosting" gamelayer="normal"></div>
                         <div class="selectelement" element="block_multi_frosting1" gamelayer="normal"></div>
                         <div class="selectelement" element="block_multi_frosting2" gamelayer="normal"></div>
                         <div class="selectelement" element="block_multi_frosting3" gamelayer="normal"></div>
@@ -383,8 +474,8 @@
                         <div class="selectelement" element="cannon_mulock_key" gamelayer="candy_cannon"></div>
                         <div class="selectelement" element="cannon_lucky" gamelayer="candy_cannon"></div>
                         <div class="selectelement" element="cannon_mystery" gamelayer="candy_cannon"></div>
-                        <div class="selectelement" element="chameleon" gamelayer="candy_cannon"></div>
-                        <div class="selectelement" element="extra_time_and_moves" gamelayer="candy_cannon"></div>
+                        <div class="selectelement" element="cannon_chameleon" gamelayer="candy_cannon"></div>
+                        <div class="selectelement" element="cannon_extra_time_and_moves" gamelayer="candy_cannon"></div>
                         <div class="selectelement" element="cannon_striped" gamelayer="candy_cannon"></div>
                         <div class="selectelement" element="cannon_wrapped_candy" gamelayer="candy_cannon"></div>
                         <div class="selectelement" element="cannon_block_waffle" gamelayer="candy_cannon"></div>
@@ -414,6 +505,19 @@
                         <div class="selectelement" element="dark_chocolate_spawner_2" gamelayer="normal"></div>
                         <div class="selectelement" element="dark_chocolate_spawner_3" gamelayer="normal"></div>
                         <div class="selectelement" element="magic_mixer" gamelayer="normal"></div>
+                    </div>
+
+                    <button class="dropdown" onclick="toggleDropdown(this)" associd="portals">
+                        <div style="display: flex; justify-content: space-between;">
+                            <p class='MergePro' style="padding-left: 5%; ">Portals</p>
+                            <p class="arrow" style="display: inline; padding-right: 5%; transform: rotate(90deg);">&raquo</p>
+                          </div>
+                    </button>
+                    <div class="dropped" id="portals" style="display:none">
+                        <div class="selectelement" element="portal_entrance" gamelayer="portal_entrance"></div>
+                        <div class="selectelement" element="portal_entrance_hidden" gamelayer="portal_entrance"></div>
+                        <!--<div class="selectelement" element="portal_exit" gamelayer="portal_exit"></div>
+                        <div class="selectelement" element="portal_exit_hidden" gamelayer="portal_exit"></div>-->
                     </div>
 
                     <button class="dropdown" onclick="toggleDropdown(this)" associd="walls">
@@ -573,6 +677,10 @@
                           </div>
                     </button>
                     <div class="dropped" id="path" style="display:none">
+                        <div class="selectelement" element="rainbow_rapid_cannon_top" gamelayer="rainbow_cannon_top"></div>
+                        <div class="selectelement" element="rainbow_rapid_cannon_bottom" gamelayer="rainbow_cannon_bottom"></div>
+                        <div class="selectelement" element="rainbow_rapid_cannon_left" gamelayer="rainbow_cannon_left"></div>
+                        <div class="selectelement" element="rainbow_rapid_cannon_right" gamelayer="rainbow_cannon_right"></div>
                         <div class="selectelement" element="rainbow_stream_vertical" gamelayer="path"></div>
                         <div class="selectelement" element="rainbow_stream_horizontal" gamelayer="path"></div>
                         <div class="selectelement" element="rainbow_stream_BL" gamelayer="path"></div>
